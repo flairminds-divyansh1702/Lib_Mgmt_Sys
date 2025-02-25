@@ -17,8 +17,6 @@ def authenticate_user(db: Session, email: str, password: str):
     Returns the user if credentials are valid, or None otherwise.
     """
     user = db.query(UserModel).filter(UserModel.email == email).first()
-    print(get_password_hash(password), '||', user.hashed_password)
-    print('User Email is:', user.hashed_password,password)
     if not user:
         return None
     if not security.verify_password(password, user.hashed_password):
@@ -45,7 +43,7 @@ def login_for_access_token(
         
         access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = security.create_access_token(
-            data={"user_id": user.id, "is_admin": user.is_admin},
+            data={"user_id": user.id, "is_admin": user.is_admin, "is_active": user.is_active},
             expires_delta=access_token_expires,
         )
         return {"access_token":access_token, "token_type":"bearer"}
@@ -116,7 +114,7 @@ def signup_with_token(user: UserCreate, db: Session = Depends(get_db)):
     # Create a token for the new user
     access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
-        data={"user_id": new_user.id, "is_admin": new_user.is_admin},
+        data={"user_id": new_user.id, "is_admin": new_user.is_admin, "is_active": new_user.is_active},
         expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}

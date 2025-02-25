@@ -32,7 +32,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-@router.get("/users/{user_id}", response_model=Union[List[UserSchema], UserSchema])
+@router.get("/users/read", response_model=Union[List[UserSchema], UserSchema])
 def read_users(
     user_id: Optional[int] = None,
     skip: int = 0,
@@ -60,7 +60,7 @@ def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
             detail="User not found"
         )
     if User.email != db_user.email:
-        existing_member = db.query(User).filter(User.email == db_user.email).first()
+        existing_member = db.query(User).filter(User.email == user.email).first()
         if existing_member:
             raise HTTPException(status_code=400, detail="Email already registered")
     
