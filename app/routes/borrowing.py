@@ -16,9 +16,6 @@ def create_borrowing(borrowing: BorrowingCreate, db: Session = Depends(get_db)):
     """Create a new borrowing record."""
     # Verify book exists and is available
     db_book = db.query(Books).filter(Books.id == borrowing.book_id).first()
-    print("Data of the b:", db_book.id)
-    print("Data of the book:", db_book.quantity)
-    print("Data of the book1:", borrowing.book_id)
     if db_book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     if db_book.quantity <= 0:
@@ -126,20 +123,15 @@ def extend_borrowing(borrowing_id: int, extension: BorrowingExtend, db: Session 
     db.refresh(db_borrowing)
     return db_borrowing
 
-@router.get("/borrowings/me", response_model=List[BorrowingDetail])
-def read_my_borrowings(
+
+@router.get("/borrowing/", response_model=List[BorrowingDetail])
+def read_all_borrowings(
     current_user = Depends(get_current_active_user),
     db: Session = Depends(get_db)
-):
-    # Regular users only see their own borrowing history.
-    borrowings = db.query(Borrowing).filter(Borrowing.user_id == current_user.id).all()
-    return borrowings
-
-@router.get("/borrowings/", response_model=List[BorrowingDetail])
-def read_all_borrowings(
-    current_user = Depends(get_current_admin_user),
-    db: Session = Depends(get_db)
-):
-    # Admin-only access to view all borrowing records.
-    borrowings = db.query(Borrowing).all()
+):  
+    print("current user configs",current_user.is_admin, current_user.is_active)
+    if current_user.is_admin:
+        borrowings = db.query(Borrowing).all()
+    else:
+        borrowings = db.query(Borrowing).filter(Borrowing.member_id == current_user.id).all()
     return borrowings
