@@ -6,7 +6,7 @@ class UserBase(BaseModel):
     name: str
     email: EmailStr
     is_active: bool = True
-    is_admin: bool = False
+    is_admin: bool
 
 class UserCreate(UserBase):
     password: str

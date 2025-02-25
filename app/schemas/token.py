@@ -6,4 +6,5 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     user_id: int | None = None
-    is_admin: bool | None = False
+    is_active: bool | None = None
+    is_admin: bool | None = None
